@@ -284,7 +284,8 @@
         document.getElementById('card-mmr').textContent = player.mmr;
         document.getElementById('card-matches').textContent = player.matches;
 
-        const winPct = player.matches > 0 ? Math.round((player.wins / player.matches) * 100) : 0;
+        const effectiveWins = wins + (draws * 0.5);
+        const winPct = totalMatches > 0 ? Math.round((effectiveWins / totalMatches) * 100) : 0;
         document.getElementById('card-winpct').textContent = winPct + '%';
 
         const rankInfo = getRank(player);
