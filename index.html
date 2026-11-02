@@ -284,6 +284,12 @@
         document.getElementById('card-mmr').textContent = player.mmr;
         document.getElementById('card-matches').textContent = player.matches;
 
+sorted.forEach((p, idx) => {
+        const totalMatches = p.matches || 0;
+        const wins = p.wins || 0;
+        const losses = p.losses || 0;
+        const draws = Math.max(0, totalMatches - wins - losses);
+
         const effectiveWins = wins + (draws * 0.5);
         const winPct = totalMatches > 0 ? Math.round((effectiveWins / totalMatches) * 100) : 0;
         document.getElementById('card-winpct').textContent = winPct + '%';
