@@ -81,7 +81,7 @@
       pointer-events: none;
     }
 
-        /* --- TÄYSIN SULAVA JA KIRKAS 3D-PYÖRIMINEN --- */
+    /* --- TÄYSIN SULAVA JA KIRKAS 3D-PYÖRIMINEN --- */
     .rank-3d-container {
       perspective: 800px;
       display: inline-block;
@@ -89,7 +89,6 @@
       width: 120px;
       height: 120px;
       transform-style: preserve-3d;
-      /* GPU-kiihdytys varmistaa täydellisen sulavuuden */
       will-change: transform;
       animation: float-and-bounce 6s infinite linear;
     }
@@ -123,7 +122,6 @@
       will-change: transform;
     }
 
-    /* Poistettu tummennukset: kaikki kerrokset ovat nyt yhtä kirkkaita, ei räpsähtelyä */
     .layer-back {
       transform: translateZ(-6px) scale(0.98);
       filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
@@ -142,7 +140,6 @@
       transform: translateZ(0px) scale(1);
       animation: icon-glitter 3s infinite ease-in-out;
     }
-
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 relative">
@@ -284,10 +281,10 @@
         document.getElementById('card-mmr').textContent = player.mmr;
         document.getElementById('card-matches').textContent = player.matches;
 
-sorted.forEach((p, idx) => {
-        const totalMatches = p.matches || 0;
-        const wins = p.wins || 0;
-        const losses = p.losses || 0;
+        // Tasapelien huomiointi voittoprosentissa (tasapeli = 0.5 voittoa)
+        const totalMatches = player.matches || 0;
+        const wins = player.wins || 0;
+        const losses = player.losses || 0;
         const draws = Math.max(0, totalMatches - wins - losses);
 
         const effectiveWins = wins + (draws * 0.5);
@@ -295,7 +292,7 @@ sorted.forEach((p, idx) => {
         document.getElementById('card-winpct').textContent = winPct + '%';
 
         const rankInfo = getRank(player);
-        
+
         const rankNameElem = document.getElementById('card-rank-name');
         rankNameElem.textContent = rankInfo.name;
         rankNameElem.className = `font-teko text-4xl sm:text-5xl font-extrabold glitter-text uppercase tracking-wider ${rankInfo.color}`;
