@@ -82,6 +82,7 @@
     }
 
     /* --- ITSETOIMIVA 3D-PYÖRIMINEN JA POMPPIMINEN --- */
+        /* --- SAUMATON 3D-PYÖRIMINEN JA POMPPIMINEN (360 astetta) --- */
     .rank-3d-container {
       perspective: 700px;
       display: inline-block;
@@ -89,17 +90,28 @@
       width: 120px;
       height: 120px;
       transform-style: preserve-3d;
-      /* Yhdistetty ylös-alas pumppaus ja hidas keinuva rotaatio */
-      animation: float-and-bounce 4s infinite ease-in-out;
+      /* Pidennetty kesto (6s) tekee liikkeestä äärimmäisen pehmeän */
+      animation: float-and-bounce 6s infinite linear;
     }
 
     @keyframes float-and-bounce {
-      0%, 100% { transform: translateY(0px) rotateX(10deg) rotateY(0deg); }
-      25% { transform: translateY(-8px) rotateX(0deg) rotateY(45deg); }
-      50% { transform: translateY(-14px) rotateX(-10deg) rotateY(90deg); }
-      75% { transform: translateY(-8px) rotateX(0deg) rotateY(135deg); }
-      100% { transform: translateY(0px) rotateX(10deg) rotateY(180deg); }
+      0% { 
+        transform: translateY(0px) rotateX(8deg) rotateY(0deg); 
+      }
+      25% { 
+        transform: translateY(-8px) rotateX(0deg) rotateY(90deg); 
+      }
+      50% { 
+        transform: translateY(-14px) rotateX(-8deg) rotateY(180deg); 
+      }
+      75% { 
+        transform: translateY(-8px) rotateX(0deg) rotateY(270deg); 
+      }
+      100% { 
+        transform: translateY(0px) rotateX(8deg) rotateY(360deg); 
+      }
     }
+
 
     .rank-layer {
       position: absolute;
