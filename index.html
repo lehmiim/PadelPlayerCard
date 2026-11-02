@@ -81,16 +81,24 @@
       pointer-events: none;
     }
 
-    /* 3D-Tilt Container & Kerrosrakenteinen paksuus (Vaihtoehto 1) */
+    /* --- ITSETOIMIVA 3D-PYÖRIMINEN JA POMPPIMINEN --- */
     .rank-3d-container {
-      perspective: 600px;
+      perspective: 700px;
       display: inline-block;
-      cursor: pointer;
-      touch-action: none;
       position: relative;
       width: 120px;
       height: 120px;
       transform-style: preserve-3d;
+      /* Yhdistetty ylös-alas pumppaus ja hidas keinuva rotaatio */
+      animation: float-and-bounce 4s infinite ease-in-out;
+    }
+
+    @keyframes float-and-bounce {
+      0%, 100% { transform: translateY(0px) rotateX(10deg) rotateY(0deg); }
+      25% { transform: translateY(-8px) rotateX(0deg) rotateY(45deg); }
+      50% { transform: translateY(-14px) rotateX(-10deg) rotateY(90deg); }
+      75% { transform: translateY(-8px) rotateX(0deg) rotateY(135deg); }
+      100% { transform: translateY(0px) rotateX(10deg) rotateY(180deg); }
     }
 
     .rank-layer {
@@ -100,11 +108,15 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transition: transform 0.1s ease-out;
       transform-style: preserve-3d;
     }
 
-    /* Taustakerrokset luovat massaa ja tummennetun "sivuseinämäefektin" */
+    /* Kerrospaksuus ja säkenöivä glitter/hohtava efekti ikonille */
+    @keyframes icon-glitter {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5)) drop-shadow(0 10px 15px rgba(0, 0, 0, 0.6)); }
+      50% { filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.9)) drop-shadow(0 15px 25px rgba(236, 72, 153, 0.4)); }
+    }
+
     .layer-back {
       transform: translateZ(-8px) scale(0.97);
       filter: brightness(0.25) drop-shadow(0 0 2px rgba(0,0,0,0.9));
@@ -117,7 +129,7 @@
 
     .layer-front {
       transform: translateZ(0px);
-      filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.6));
+      animation: icon-glitter 3s infinite ease-in-out;
     }
   </style>
 </head>
@@ -136,7 +148,7 @@
       <p class="text-xs text-sky-300 font-semibold uppercase tracking-widest">Henkilökohtainen Pelaajakortti</p>
     </div>
 
-    <!-- PÄÄKORTTI (Metallinen hologrammiefekti & läpikuultavuus) -->
+    <!-- PÄÄKORTTI -->
     <div id="player-card-container" class="rank-card-hologram rounded-3xl p-8 shadow-2xl space-y-6">
 
       <!-- Pelaajan Nimi -->
@@ -149,7 +161,7 @@
       <div class="py-4 relative flex flex-col items-center justify-center">
         <div class="absolute inset-0 bg-sky-500/10 rounded-full filter blur-xl animate-pulse"></div>
 
-        <!-- Interaktiivinen 3D-kerrospinalo (Vaihtoehto 1) -->
+        <!-- Itsetoimiva 3D-kerrospinalo glitterillä ja pomppimisella -->
         <div class="rank-3d-container mb-3" id="icon-container">
           <img id="card-rank-img-back" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="" class="rank-layer layer-back">
           <img id="card-rank-img-mid" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="" class="rank-layer layer-mid">
@@ -162,7 +174,7 @@
         </div>
       </div>
 
-      <!-- Tilastoruudukko (Läpikuultavat metallilaatikot) -->
+      <!-- Tilastoruudukko -->
       <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/10 text-center">
         <div class="bg-slate-900/40 backdrop-blur-md p-3 rounded-2xl border border-white/10 shadow-inner">
           <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">MMR</div>
@@ -187,13 +199,9 @@
   </div>
 
   <script>
-    // API-osoite Google Sheetsiin
     const API_URL = "https://script.google.com/macros/s/AKfycbyaIu-1CUxG05OXcuRIHz_Pz53bO3cEjKHHvMaFVWT32Jc13GFyC1Lfq111et-sq7_S/exec";
-
-    // GitHub-osoite ikonikansiolle (päivitetty RankIcons)
     const GITHUB_ICON_BASE = "https://lehmiim.github.io/PadelPlayerCard/RankIcons/";
 
-    // Apufunktio rankin laskemiseen ja ikonin valintaan
     function getRank(player) {
       const uniqueSessions = player.playedDates ? player.playedDates.length : 0;
 
@@ -234,71 +242,7 @@
       return { name, color, img };
     }
 
-    // 3D Tilt -efektin alustus (liikuttaa kaikkia kolmea kerrosta kerralla)
-    function setup3DTilt() {
-      const container = document.getElementById('icon-container');
-      const layers = container.querySelectorAll('.rank-layer');
-
-      if (!container || layers.length === 0) return;
-
-      function updateTilt(clientX, clientY) {
-        const rect = container.getBoundingClientRect();
-        const x = clientX - rect.left - rect.width / 2;
-        const y = clientY - rect.top - rect.height / 2;
-
-        const rotateX = (-y / (rect.height / 2)) * 30;
-        const rotateY = (x / (rect.width / 2)) * 30;
-
-        // Siirretään jokaista kerrosta säilyttäen niiden omat syvyyserot (translateZ)
-        layers.forEach(layer => {
-          if (layer.classList.contains('layer-back')) {
-            layer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(-8px) scale(0.97)`;
-          } else if (layer.classList.contains('layer-mid')) {
-            layer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(-4px) scale(0.99)`;
-          } else {
-            layer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px) scale(1.1)';
-          }
-        });
-      }
-
-      container.addEventListener('mousemove', (e) => {
-        updateTilt(e.clientX, e.clientY);
-      });
-
-      container.addEventListener('mouseleave', () => {
-        layers.forEach(layer => {
-          if (layer.classList.contains('layer-back')) {
-            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-8px) scale(0.97)';
-          } else if (layer.classList.contains('layer-mid')) {
-            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-4px) scale(0.99)';
-          } else {
-            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
-          }
-        });
-      });
-
-      container.addEventListener('touchmove', (e) => {
-        if (e.touches.length > 0) {
-          updateTilt(e.touches[0].clientX, e.touches[0].clientY);
-        }
-      }, { passive: true });
-
-      container.addEventListener('touchend', () => {
-        layers.forEach(layer => {
-          if (layer.classList.contains('layer-back')) {
-            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-8px) scale(0.97)';
-          } else if (layer.classList.contains('layer-mid')) {
-            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-4px) scale(0.99)';
-          } else {
-            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
-          }
-        });
-      });
-    }
-
     window.onload = async function() {
-      setup3DTilt();
-
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
       const playerNameParam = urlParams.get('player');
@@ -324,7 +268,6 @@
           player = players[0];
         }
 
-        // Päivitetään tiedot kortille
         document.getElementById('card-player-name').textContent = player.name;
         document.getElementById('card-mmr').textContent = player.mmr;
         document.getElementById('card-matches').textContent = player.matches;
@@ -338,7 +281,6 @@
         rankNameElem.textContent = rankInfo.name;
         rankNameElem.className = `font-teko text-4xl sm:text-5xl font-extrabold glitter-text uppercase tracking-wider ${rankInfo.color}`;
 
-        // Asetetaan kaikille kolmelle kerrokselle oikea kuvatiedosto oikeasta kansiosta
         const fullImgUrl = `${GITHUB_ICON_BASE}${rankInfo.img}`;
         document.getElementById('card-rank-img-back').src = fullImgUrl;
         document.getElementById('card-rank-img-mid').src = fullImgUrl;
