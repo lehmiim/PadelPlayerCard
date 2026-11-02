@@ -81,21 +81,43 @@
       pointer-events: none;
     }
 
-    /* 3D-Tilt Container & Ikoni */
+    /* 3D-Tilt Container & Kerrosrakenteinen paksuus (Vaihtoehto 1) */
     .rank-3d-container {
       perspective: 600px;
       display: inline-block;
       cursor: pointer;
       touch-action: none;
+      position: relative;
+      width: 120px;
+      height: 120px;
+      transform-style: preserve-3d;
     }
 
-    .rank-3d-icon {
-      width: 110px;
-      height: 110px;
+    .rank-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       object-fit: contain;
       transition: transform 0.1s ease-out;
       transform-style: preserve-3d;
-      filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.5));
+    }
+
+    /* Taustakerrokset luovat massaa ja tummennetun "sivuseinämäefektin" */
+    .layer-back {
+      transform: translateZ(-8px) scale(0.97);
+      filter: brightness(0.25) drop-shadow(0 0 2px rgba(0,0,0,0.9));
+    }
+
+    .layer-mid {
+      transform: translateZ(-4px) scale(0.99);
+      filter: brightness(0.55);
+    }
+
+    .layer-front {
+      transform: translateZ(0px);
+      filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.6));
     }
   </style>
 </head>
@@ -127,9 +149,11 @@
       <div class="py-4 relative flex flex-col items-center justify-center">
         <div class="absolute inset-0 bg-sky-500/10 rounded-full filter blur-xl animate-pulse"></div>
 
-        <!-- Interaktiivinen 3D Rank Icon -alue -->
+        <!-- Interaktiivinen 3D-kerrospinalo (Vaihtoehto 1) -->
         <div class="rank-3d-container mb-3" id="icon-container">
-          <img id="card-rank-img" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="Rank Icon" class="rank-3d-icon">
+          <img id="card-rank-img-back" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="" class="rank-layer layer-back">
+          <img id="card-rank-img-mid" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="" class="rank-layer layer-mid">
+          <img id="card-rank-img-front" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="Rank Icon" class="rank-layer layer-front">
         </div>
 
         <!-- Rank Nimi -->
@@ -166,7 +190,7 @@
     // API-osoite Google Sheetsiin
     const API_URL = "https://script.google.com/macros/s/AKfycbyaIu-1CUxG05OXcuRIHz_Pz53bO3cEjKHHvMaFVWT32Jc13GFyC1Lfq111et-sq7_S/exec";
 
-    // GitHub-osoite ikonikansiolle
+    // GitHub-osoite ikonikansiolle (päivitetty RankIcons)
     const GITHUB_ICON_BASE = "https://lehmiim.github.io/PadelPlayerCard/RankIcons/";
 
     // Apufunktio rankin laskemiseen ja ikonin valintaan
@@ -210,22 +234,31 @@
       return { name, color, img };
     }
 
-    // 3D Tilt -efektin alustus (Hiiri & Kosketus)
+    // 3D Tilt -efektin alustus (liikuttaa kaikkia kolmea kerrosta kerralla)
     function setup3DTilt() {
       const container = document.getElementById('icon-container');
-      const icon = document.getElementById('card-rank-img');
+      const layers = container.querySelectorAll('.rank-layer');
 
-      if (!container || !icon) return;
+      if (!container || layers.length === 0) return;
 
       function updateTilt(clientX, clientY) {
         const rect = container.getBoundingClientRect();
         const x = clientX - rect.left - rect.width / 2;
         const y = clientY - rect.top - rect.height / 2;
 
-        const rotateX = (-y / (rect.height / 2)) * 35;
-        const rotateY = (x / (rect.width / 2)) * 35;
+        const rotateX = (-y / (rect.height / 2)) * 30;
+        const rotateY = (x / (rect.width / 2)) * 30;
 
-        icon.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.15)`;
+        // Siirretään jokaista kerrosta säilyttäen niiden omat syvyyserot (translateZ)
+        layers.forEach(layer => {
+          if (layer.classList.contains('layer-back')) {
+            layer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(-8px) scale(0.97)`;
+          } else if (layer.classList.contains('layer-mid')) {
+            layer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(-4px) scale(0.99)`;
+          } else {
+            layer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0px) scale(1.1)';
+          }
+        });
       }
 
       container.addEventListener('mousemove', (e) => {
@@ -233,7 +266,15 @@
       });
 
       container.addEventListener('mouseleave', () => {
-        icon.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        layers.forEach(layer => {
+          if (layer.classList.contains('layer-back')) {
+            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-8px) scale(0.97)';
+          } else if (layer.classList.contains('layer-mid')) {
+            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-4px) scale(0.99)';
+          } else {
+            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
+          }
+        });
       });
 
       container.addEventListener('touchmove', (e) => {
@@ -243,7 +284,15 @@
       }, { passive: true });
 
       container.addEventListener('touchend', () => {
-        icon.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        layers.forEach(layer => {
+          if (layer.classList.contains('layer-back')) {
+            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-8px) scale(0.97)';
+          } else if (layer.classList.contains('layer-mid')) {
+            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(-4px) scale(0.99)';
+          } else {
+            layer.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px) scale(1)';
+          }
+        });
       });
     }
 
@@ -289,9 +338,12 @@
         rankNameElem.textContent = rankInfo.name;
         rankNameElem.className = `font-teko text-4xl sm:text-5xl font-extrabold glitter-text uppercase tracking-wider ${rankInfo.color}`;
 
-        const rankImgElem = document.getElementById('card-rank-img');
-        rankImgElem.src = `${GITHUB_ICON_BASE}${rankInfo.img}`;
-        rankImgElem.alt = rankInfo.name;
+        // Asetetaan kaikille kolmelle kerrokselle oikea kuvatiedosto oikeasta kansiosta
+        const fullImgUrl = `${GITHUB_ICON_BASE}${rankInfo.img}`;
+        document.getElementById('card-rank-img-back').src = fullImgUrl;
+        document.getElementById('card-rank-img-mid').src = fullImgUrl;
+        document.getElementById('card-rank-img-front').src = fullImgUrl;
+        document.getElementById('card-rank-img-front').alt = rankInfo.name;
 
         const sessions = player.playedDates ? player.playedDates.length : 0;
         if (rankInfo.isUnranked) {
