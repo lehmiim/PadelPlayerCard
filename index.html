@@ -81,37 +81,36 @@
       pointer-events: none;
     }
 
-    /* --- ITSETOIMIVA 3D-PYÖRIMINEN JA POMPPIMINEN --- */
-        /* --- SAUMATON 3D-PYÖRIMINEN JA POMPPIMINEN (360 astetta) --- */
+        /* --- TÄYSIN SULAVA JA KIRKAS 3D-PYÖRIMINEN --- */
     .rank-3d-container {
-      perspective: 700px;
+      perspective: 800px;
       display: inline-block;
       position: relative;
       width: 120px;
       height: 120px;
       transform-style: preserve-3d;
-      /* Pidennetty kesto (6s) tekee liikkeestä äärimmäisen pehmeän */
+      /* GPU-kiihdytys varmistaa täydellisen sulavuuden */
+      will-change: transform;
       animation: float-and-bounce 6s infinite linear;
     }
 
     @keyframes float-and-bounce {
       0% { 
-        transform: translateY(0px) rotateX(8deg) rotateY(0deg); 
+        transform: translateY(0px) rotateX(6deg) rotateY(0deg); 
       }
       25% { 
         transform: translateY(-8px) rotateX(0deg) rotateY(90deg); 
       }
       50% { 
-        transform: translateY(-14px) rotateX(-8deg) rotateY(180deg); 
+        transform: translateY(-12px) rotateX(-6deg) rotateY(180deg); 
       }
       75% { 
         transform: translateY(-8px) rotateX(0deg) rotateY(270deg); 
       }
       100% { 
-        transform: translateY(0px) rotateX(8deg) rotateY(360deg); 
+        transform: translateY(0px) rotateX(6deg) rotateY(360deg); 
       }
     }
-
 
     .rank-layer {
       position: absolute;
@@ -121,28 +120,29 @@
       height: 100%;
       object-fit: contain;
       transform-style: preserve-3d;
+      will-change: transform;
     }
 
-    /* Kerrospaksuus ja säkenöivä glitter/hohtava efekti ikonille */
-    @keyframes icon-glitter {
-      0%, 100% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5)) drop-shadow(0 10px 15px rgba(0, 0, 0, 0.6)); }
-      50% { filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.9)) drop-shadow(0 15px 25px rgba(236, 72, 153, 0.4)); }
-    }
-
+    /* Poistettu tummennukset: kaikki kerrokset ovat nyt yhtä kirkkaita, ei räpsähtelyä */
     .layer-back {
-      transform: translateZ(-8px) scale(0.97);
-      filter: brightness(0.25) drop-shadow(0 0 2px rgba(0,0,0,0.9));
+      transform: translateZ(-6px) scale(0.98);
+      filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
     }
 
     .layer-mid {
-      transform: translateZ(-4px) scale(0.99);
-      filter: brightness(0.55);
+      transform: translateZ(-3px) scale(0.99);
+    }
+
+    @keyframes icon-glitter {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6)) drop-shadow(0 10px 15px rgba(0, 0, 0, 0.4)); }
+      50% { filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.9)) drop-shadow(0 15px 25px rgba(236, 72, 153, 0.4)); }
     }
 
     .layer-front {
       transform: translateZ(0px) scale(1);
       animation: icon-glitter 3s infinite ease-in-out;
     }
+
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4 relative">
