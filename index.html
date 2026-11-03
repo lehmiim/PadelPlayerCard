@@ -172,9 +172,9 @@
 
         <!-- Itsetoimiva 3D-kerrospinalo glitterillä ja pomppimisella -->
         <div class="rank-3d-container mb-3" id="icon-container">
-          <img id="card-rank-img-back" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="" class="rank-layer layer-back">
-          <img id="card-rank-img-mid" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="" class="rank-layer layer-mid">
-          <img id="card-rank-img-front" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/pronssi1.png" alt="Rank Icon" class="rank-layer layer-front">
+          <img id="card-rank-img-back" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/unranked.png" alt="" class="rank-layer layer-back">
+          <img id="card-rank-img-mid" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/unranked.png" alt="" class="rank-layer layer-mid">
+          <img id="card-rank-img-front" src="https://lehmiim.github.io/PadelPlayerCard/RankIcons/unranked.png" alt="Rank Icon" class="rank-layer layer-front">
         </div>
 
         <!-- Rank Nimi -->
@@ -216,10 +216,10 @@
 
       if (!player.hasAchievedRank && uniqueSessions < 5) {
         return { 
-          name: 'Unranked ❓', 
+          name: 'Unranked', 
           color: 'text-slate-500 font-normal', 
           isUnranked: true, 
-          img: 'pronssi1.png' 
+          img: 'unranked.png' 
         };
       }
 
