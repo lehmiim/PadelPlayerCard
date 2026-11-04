@@ -266,20 +266,21 @@
           throw new Error("Ei pelaajia");
         }
 
-        let player = null;
+                let player = null;
         if (token) {
           player = players.find(p => p.token === token);
-        }
-        if (!player && playerNameParam) {
+        } else if (playerNameParam) {
           player = players.find(p => p.name.toLowerCase() === playerNameParam.toLowerCase());
         }
+
         if (!player) {
-          player = players[0];
+          throw new Error("Pelaajaa ei löytynyt tai henkilökohtainen tunniste (token) puuttuu.");
         }
 
         document.getElementById('card-player-name').textContent = player.name;
         document.getElementById('card-mmr').textContent = player.mmr;
-        document.getElementById('card-matches').textContent = player.matches;
+        document.getElementById('card-matches').textContent = player.matches || 0;
+
 
         // Tasapelien huomiointi voittoprosentissa (tasapeli = 0.5 voittoa)
         const totalMatches = player.matches || 0;
