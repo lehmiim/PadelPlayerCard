@@ -311,11 +311,16 @@
           document.getElementById('card-player-status').textContent = `Aktiivinen Ranking-pelaaja`;
         }
 
-      } catch (err) {
+            } catch (err) {
         console.error("Virhe haettaessa tietoja pilvestä:", err);
-        document.getElementById('card-player-name').textContent = "Virhe ladattaessa";
-        document.getElementById('card-player-status').textContent = "Tietojen haku pilvestä epäonnistui.";
+        document.getElementById('card-player-name').textContent = "Pääsy evätty";
+        document.getElementById('card-player-status').textContent = "Tunnistautuminen epäonnistui (token puuttuu tai on virheellinen).";
+        document.getElementById('card-rank-name').textContent = "VIRHE";
+        document.getElementById('card-mmr').textContent = "-";
+        document.getElementById('card-winpct').textContent = "-";
+        document.getElementById('card-matches').textContent = "-";
       }
+
     };
   </script>
 </body>
