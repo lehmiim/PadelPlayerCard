@@ -251,34 +251,34 @@
       return { name, color, img };
     }
 
-    window.onload = async function() {
+        window.onload = async function() {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
-      const playerNameParam = urlParams.get('player');
+
+      if (!token) {
+        document.getElementById('card-player-name').textContent = "Pääsy evätty";
+        document.getElementById('card-player-status').textContent = "Henkilökohtainen tunniste (token) puuttuu osoitteesta.";
+        return;
+      }
 
       try {
         const response = await fetch(`${API_URL}?token=${token}`);
         const data = await response.json();
 
-        const players = Array.isArray(data) ? data : (data.players || []);
-
-        if (players.length === 0) {
-          throw new Error("Ei pelaajia");
+        
+        if (data.error) {
+          throw new Error(data.error);
         }
 
-                let player = null;
-        if (token) {
-          player = players.find(p => p.token === token);
-        } else if (playerNameParam) {
-          player = players.find(p => p.name.toLowerCase() === playerNameParam.toLowerCase());
-        }
+  
+        let player = data;
 
-        if (!player) {
-          throw new Error("Pelaajaa ei löytynyt tai henkilökohtainen tunniste (token) puuttuu.");
+        if (!player || !player.id && !player.name) {
+          throw new Error("Pelaajaa ei löytynyt");
         }
 
         document.getElementById('card-player-name').textContent = player.name;
-        document.getElementById('card-mmr').textContent = player.mmr;
+        document.getElementById('card-mmr').textContent = player.mmr || 0;
         document.getElementById('card-matches').textContent = player.matches || 0;
 
 
