@@ -257,7 +257,7 @@
       const playerNameParam = urlParams.get('player');
 
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}?token=${token}`);
         const data = await response.json();
 
         const players = Array.isArray(data) ? data : (data.players || []);
