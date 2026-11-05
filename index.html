@@ -199,18 +199,10 @@
         </div>
       </div>
 
-      <!-- Vireystila / Light Bar -osio -->
-      <div class="mt-4 pt-4 border-t border-white/10 space-y-1.5 text-left">
-        <div class="flex justify-between items-center text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-          <span>Vireystila (Viimeisimmät ottelut)</span>
-          <span id="form-bar-status">0 / 10 peliä</span>
-        </div>
-        
-        <!-- Valopalkin runko -->
+      <!-- Vireystila Valopalkki -->
+      <div class="mt-4 pt-4 border-t border-white/10">
         <div class="w-full h-3.5 bg-slate-950/90 rounded-full p-0.5 border border-white/10 relative overflow-hidden shadow-inner">
-          <!-- Elävä liukuväripalkki -->
           <div id="player-form-light-bar" class="h-full rounded-full transition-all duration-700 relative" style="width: 100%; background: #475569;">
-            <!-- Sisäinen kiilto-efekti -->
             <div class="absolute inset-0 bg-gradient-to-t from-transparent via-white/25 to-transparent rounded-full pointer-events-none"></div>
           </div>
         </div>
@@ -273,13 +265,10 @@
      */
     function updatePlayerFormLightBar(playerMatches) {
       const barElement = document.getElementById('player-form-light-bar');
-      const statusElement = document.getElementById('form-bar-status');
-      if (!barElement || !statusElement) return;
+      if (!barElement) return;
 
       const recentMatches = (playerMatches || []).slice(-10);
       const matchCount = recentMatches.length;
-
-      statusElement.textContent = `${matchCount} / 10 peliä`;
 
       if (matchCount === 0) {
         barElement.style.width = '100%';
@@ -339,7 +328,6 @@
         document.getElementById('card-mmr').textContent = player.mmr || 0;
         document.getElementById('card-matches').textContent = player.matches || 0;
 
-        // Tasapelien huomiointi voittoprosentissa (tasapeli = 0.5 voittoa)
         const totalMatches = player.matches || 0;
         const wins = player.wins || 0;
         const losses = player.losses || 0;
@@ -369,8 +357,8 @@
           document.getElementById('card-player-status').textContent = `Kausi ${seasonNum} - Aktiivinen pelaaja`;
         }
 
-        // Päivitetään vireystila (Light Bar)
-        updatePlayerFormLightBar(player.recentMatches || player.matchesHistory || []);
+        // Päivitetään vireystilan valopalkki
+        updatePlayerFormLightBar(player.matchesHistory || player.recentMatches || []);
 
       } catch (err) {
         console.error("Virhe haettaessa tietoja pilvestä:", err);
