@@ -141,20 +141,21 @@
       animation: icon-glitter 3s infinite ease-in-out;
     }
 
-    /* Liekkimäinen syke- ja elo-efekti valopalkille */
-    @keyframes flame-pulse {
+    /* Valomiekkamainen ja orgaanisesti sykkivä plasma-efekti */
+    @keyframes lightsaber-burn {
       0%, 100% {
-        filter: brightness(1);
+        filter: brightness(1.1);
         transform: scale(1);
       }
       50% {
-        filter: brightness(1.25);
-        transform: scale(1.01);
+        filter: brightness(1.35);
+        transform: scaleY(1.04);
       }
     }
 
-    .flame-light-bar {
-      animation: flame-pulse 2s infinite ease-in-out;
+    .lightsaber-bar {
+      animation: lightsaber-burn 2.5s infinite ease-in-out;
+      position: relative;
     }
   </style>
 </head>
@@ -215,11 +216,12 @@
         </div>
       </div>
 
-      <!-- Pelkkä Liekehtivä Valopalkki (Ei tekstejä) -->
+      <!-- Valomiekkamainen Valopalkki (Säteilee rajoista ulos) -->
       <div class="mt-4 pt-4 border-t border-white/10">
-        <div class="w-full h-3.5 bg-slate-950/90 rounded-full p-0.5 border border-white/10 relative overflow-hidden shadow-inner">
-          <div id="player-form-light-bar" class="h-full rounded-full transition-all duration-700 relative" style="width: 100%; background: #475569;">
-            <div class="absolute inset-0 bg-gradient-to-t from-transparent via-white/25 to-transparent rounded-full pointer-events-none"></div>
+        <div class="w-full h-3 bg-slate-950 rounded-full p-0.5 border border-white/10 relative shadow-inner">
+          <div id="player-form-light-bar" class="h-full rounded-full transition-all duration-700 relative lightsaber-bar" style="width: 100%; background: #475569;">
+            <!-- Kirkas valomiekkamainen sisäydin -->
+            <div class="absolute inset-0 bg-white/60 rounded-full pointer-events-none filter blur-[0.5px]"></div>
           </div>
         </div>
       </div>
@@ -277,13 +279,11 @@
     }
 
     /**
-     * Päivittää vireystilan liekehtivän valopalkin (Light Bar)
+     * Päivittää valomiekkamaisen valopalkin
      */
     function updatePlayerFormLightBar(playerMatches) {
       const barElement = document.getElementById('player-form-light-bar');
       if (!barElement) return;
-
-      barElement.classList.add('flame-light-bar');
 
       const recentMatches = (playerMatches || []).slice(-10);
       const matchCount = recentMatches.length;
@@ -306,29 +306,28 @@
 
       let hue;
       if (formRatio < 0.5) {
-        hue = 5 + (formRatio * 2 * 20); // Syvä punainen -> poltettu oranssi
+        hue = 5 + (formRatio * 2 * 20); // Syvä punainen -> oranssi
       } else {
-        hue = 25 + ((formRatio - 0.5) * 2 * 120); // Poltettu oranssi -> syvä metsänvihreä
+        hue = 25 + ((formRatio - 0.5) * 2 * 120); // Oranssi -> metsänvihreä
       }
 
       const maturityFactor = matchCount / 10; 
-      const saturation = Math.round(70 + (maturityFactor * 25)); 
-      const lightness = Math.round(45 - (maturityFactor * 5));    
+      const saturation = Math.round(80 + (maturityFactor * 20)); 
+      const lightness = Math.round(50 - (maturityFactor * 5));    
 
       const baseColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-      const brightCoreColor = `hsl(${hue}, 100%, 60%)`; 
-      const darkFlameColor = `hsl(${hue}, 80%, 25%)`;   
+      const coreColor = `hsl(${hue}, 100%, 75%)`;   
+      const plasmaGlow = `hsl(${hue}, 90%, 55%)`;   
 
       barElement.style.width = '100%';
       barElement.style.background = baseColor;
 
-      // Kerrostettu tulimainen aura ympärille
+      // Valomiekkamainen levittäytyvä aura
       barElement.style.boxShadow = `
-        0 0 6px ${brightCoreColor},
-        0 0 15px ${baseColor},
-        0 0 28px ${brightCoreColor},
-        0 0 45px ${darkFlameColor},
-        inset 0 0 8px rgba(255, 255, 255, 0.4)
+        0 0 4px ${coreColor},
+        0 0 12px ${plasmaGlow},
+        0 0 25px ${plasmaGlow},
+        0 0 50px ${baseColor}
       `;
     }
 
@@ -389,7 +388,7 @@
           document.getElementById('card-player-status').textContent = `Kausi ${seasonNum} - Aktiivinen pelaaja`;
         }
 
-        // Päivitetään liekehtivä valopalkki
+        // Päivitetään valomiekkapalkki
         updatePlayerFormLightBar(player.matchesHistory || player.recentMatches || []);
 
       } catch (err) {
