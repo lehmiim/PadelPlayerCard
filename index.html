@@ -260,8 +260,8 @@
       return { name, color, img };
     }
 
-    /**
-     * Päivittää vireystilan valopalkin (Light Bar)
+        /**
+     * Päivittää vireystilan valopalkin (Light Bar) - Optimoitu värimaailma ja voimakas hehku
      */
     function updatePlayerFormLightBar(playerMatches) {
       const barElement = document.getElementById('player-form-light-bar');
@@ -270,9 +270,10 @@
       const recentMatches = (playerMatches || []).slice(-10);
       const matchCount = recentMatches.length;
 
+      // Jos otteluita ei ole, näytetään neutraali tumma/harmaa palkki
       if (matchCount === 0) {
         barElement.style.width = '100%';
-        barElement.style.background = '#475569';
+        barElement.style.background = '#334155';
         barElement.style.boxShadow = 'none';
         return;
       }
@@ -284,21 +285,46 @@
         else if (res === 'DRAW') totalScore += 0.5;
       });
 
-      const formRatio = totalScore / matchCount; 
-      let hue = formRatio * 120; // 0 = punainen, 120 = vihreä
+      const formRatio = totalScore / matchCount; // 0.0 (tappioputki) -> 1.0 (voittoputki)
+
+      // --- VÄRIEN OPTIMOINTI (Custom Hue -kartoitus) ---
+      // Halutaan: 
+      // 0.0 (Huono) = Syvä, tumma punainen (Hue ~ 5°)
+      // 0.5 (Keskiarvo) = Poltettu oranssinpunainen (Hue ~ 25°, pois keltaisesta)
+      // 1.0 (Hyvä) = Tummempi, tyylikäs metsänvihreä / smaragdi (Hue ~ 145°, ei neon)
+      
+      let hue;
+      if (formRatio < 0.5) {
+        // Alapää: Puvusta (5°) oranssinpunertavaan (25°)
+        hue = 5 + (formRatio * 2 * 20);
+      } else {
+        // Yläpää: Oranssinpunertavasta (25°) tummempaan vihreään (145°)
+        hue = 25 + ((formRatio - 0.5) * 2 * 120);
+      }
 
       const maturityFactor = matchCount / 10; 
-      const saturation = Math.round(30 + (maturityFactor * 60)); 
-      const lightness = Math.round(65 - (maturityFactor * 15)); 
+      
+      // Saturaatio ja valoisuus pidetään syvinä ja täyteläisinä (ei liian vaaleita)
+      const saturation = Math.round(65 + (maturityFactor * 25)); // 65% -> 90%
+      const lightness = Math.round(42 - (maturityFactor * 6));    // 42% -> 36% (tummempi, arvokkaampi sävy)
 
       const barColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
       
       barElement.style.width = '100%';
       barElement.style.background = barColor;
 
-      const glowAlpha = 0.2 + (maturityFactor * 0.5);
-      barElement.style.boxShadow = `0 0 14px ${barColor.replace(')', `, ${glowAlpha})`).replace('hsl', 'hsla')}`;
+      // --- VOIMAKAS VALOILMIÖ / HEHKU (Glow) ---
+      // Tehdään hehkusta leveämpi ja monikerroksisempi, jotta se näyttää aidosti hehkuvalta light barilta
+      const glowAlpha = 0.5 + (maturityFactor * 0.4); // Vahvempi läpinäkyvyys
+      const baseColorForShadow = `hsl(${hue}, 90%, 50%)`; // Käytetään kirkkaampaa sävyä itse hehkuun
+      
+      barElement.style.boxShadow = `
+        0 0 10px ${baseColorForShadow.replace(')', `, ${glowAlpha})`).replace('hsl', 'hsla')},
+        0 0 22px ${baseColorForShadow.replace(')', `, ${glowAlpha * 0.7})`).replace('hsl', 'hsla')},
+        0 0 35px ${baseColorForShadow.replace(')', `, ${glowAlpha * 0.4})`).replace('hsl', 'hsla')}
+      `;
     }
+
 
     window.onload = async function() {
       const urlParams = new URLSearchParams(window.location.search);
