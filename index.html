@@ -304,11 +304,12 @@
         document.getElementById('card-rank-img-front').src = fullImgUrl;
         document.getElementById('card-rank-img-front').alt = rankInfo.name;
 
-        const sessions = player.playedDates ? player.playedDates.length : 0;
+      const seasonNum = data.currentSeason || 1;
+      const sessions = player.playedDates ? player.playedDates.length : 0;
         if (rankInfo.isUnranked) {
-          document.getElementById('card-player-status').textContent = `Unranked (${sessions}/5 pelisessiota vaadittu)`;
+          document.getElementById('card-player-status').textContent = `Kausi ${seasonNum} - Unranked (${sessions}/5 pelisessiota pelattu)`;
         } else {
-          document.getElementById('card-player-status').textContent = `Aktiivinen Ranking-pelaaja`;
+          document.getElementById('card-player-status').textContent = `Kausi ${seasonNum} - Aktiivinen pelaaja`;
         }
 
             } catch (err) {
